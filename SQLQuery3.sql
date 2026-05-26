@@ -1,0 +1,42 @@
+﻿USE InventoryLab16;
+GO
+
+IF OBJECT_ID('OrderLines', 'U') IS NOT NULL
+    DROP TABLE OrderLines;
+GO
+
+IF OBJECT_ID('Orders', 'U') IS NOT NULL
+    DROP TABLE Orders;
+GO
+
+CREATE TABLE Orders
+(
+    OrderID INT IDENTITY(1,1) PRIMARY KEY,
+
+    Name NVARCHAR(100) NOT NULL,
+    Line1 NVARCHAR(200) NOT NULL,
+    Line2 NVARCHAR(200) NULL,
+    Line3 NVARCHAR(200) NULL,
+    City NVARCHAR(100) NOT NULL,
+    State NVARCHAR(100) NOT NULL,
+    Zip NVARCHAR(30) NULL,
+    Country NVARCHAR(100) NOT NULL,
+    GiftWrap BIT NOT NULL DEFAULT 0
+);
+GO
+
+CREATE TABLE OrderLines
+(
+    OrderLineID INT IDENTITY(1,1) PRIMARY KEY,
+    OrderID INT NOT NULL,
+
+    InventoryID INT NOT NULL,
+    ItemName NVARCHAR(100) NOT NULL,
+    Price DECIMAL(18,2) NOT NULL,
+    Quantity INT NOT NULL,
+
+    CONSTRAINT FK_OrderLines_Orders
+        FOREIGN KEY (OrderID) REFERENCES Orders(OrderID)
+        ON DELETE CASCADE
+);
+GO

@@ -1,0 +1,16 @@
+﻿@model InventoryListViewModel
+
+@foreach (var item in Model.InventoryItems ?? Enumerable.Empty<Inventory>())
+{
+    <partial name="InventorySummary" model="item" />
+}
+
+<div page-model="@Model.PagingInfo"
+     page-action="Index"
+     page-classes-enabled="true"
+     page-class="btn"
+     page-class-normal="btn-outline-dark"
+     page-class-selected="btn-primary"
+     page-url-category="@Model.CurrentCategory!"
+     class="btn-group float-end m-1">
+</div>

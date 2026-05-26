@@ -1,0 +1,81 @@
+﻿@page "/admin/orders"
+@inherits OwningComponentBase<IOrderRepository>
+
+<h3 class="bg-info text-white text-center p-2">
+    Order Administration
+</h3>
+
+<OrderTable TableTitle="Unshipped Orders"
+            Orders="UnshippedOrders"
+            ButtonLabel="Ship"
+            OrderSelected="ShipOrder" />
+
+<OrderTable TableTitle="Shipped Orders"
+            Orders="ShippedOrders"
+            ButtonLabel="Reset"
+            OrderSelected="ResetOrder" />
+
+<button class="btn btn-info"
+        @onclick="@(async () => await UpdateData())">
+    Refresh Data
+</button>
+
+@code {
+    public IOrderRepository Repository => Service;
+
+    public IEnumerable<Order> AllOrders { get; set; }
+        = Enumerable.Empty<Order>();
+
+    public IEnumerable<Order> UnshippedOrders { get; set; }
+        = Enumerable.Empty<Order>();
+
+    public IEnumerable<Order> ShippedOrders { get; set; }
+        = Enumerable.Empty<Order>();
+
+    protected async override Task OnInitializedAsync()
+    {
+        await UpdateData();
+    }
+
+    public async Task UpdateData()
+    {
+        AllOrders = await Repository.Orders
+            .OrderByDescending(o => o.OrderID)
+            .ToListAsync();
+
+        UnshippedOrders = AllOrders
+            .Where(o => !o.Shipped)
+            .ToList();
+
+        ShippedOrders = AllOrders
+            .Where(o => o.Shipped)
+            .ToList();
+
+        StateHasChanged();
+    }
+
+    public async Task ShipOrder(int id)
+    {
+        await UpdateOrder(id, true);
+    }
+
+    public async Task ResetOrder(int id)
+    {
+        await UpdateOrder(id, false);
+    }
+
+    private async Task UpdateOrder(int id, bool shipped)
+    {
+        Order? order = await Repository.Orders
+            .FirstOrDefaultAsync(o => o.OrderID == id);
+
+        if (order != null)
+        {
+            order.Shipped = shipped;
+
+            Repository.SaveOrder(order);
+
+            await UpdateData();
+        }
+    }
+}

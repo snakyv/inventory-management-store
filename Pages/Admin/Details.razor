@@ -1,0 +1,82 @@
+﻿@page "/admin/products/details/{id:int}"
+@inherits OwningComponentBase<IStoreRepository>
+
+<h3 class="bg-info text-white text-center p-2">
+    Inventory Item Details
+</h3>
+
+@if (InventoryItem == null)
+{
+    <div class="alert alert-warning">
+        Inventory item was not found.
+    </div>
+
+    <a class="btn btn-secondary"
+       href="/admin/products">
+        Back
+    </a>
+}
+else
+{
+    <table class="table table-sm table-bordered table-striped">
+        <tbody>
+            <tr>
+                <th>ID</th>
+                <td>@InventoryItem.InventoryID</td>
+            </tr>
+
+            <tr>
+                <th>Name</th>
+                <td>@InventoryItem.Name</td>
+            </tr>
+
+            <tr>
+                <th>Price</th>
+                <td>@((InventoryItem.Price ?? 0).ToString("c"))</td>
+            </tr>
+
+            <tr>
+                <th>Quantity</th>
+                <td>@(InventoryItem.Quantity ?? 0)</td>
+            </tr>
+
+            <tr>
+                <th>Part</th>
+                <td>@(InventoryItem.Part?.Name ?? "No part")</td>
+            </tr>
+
+            <tr>
+                <th>Invoice</th>
+                <td>@(InventoryItem.Invoice?.SerialNumber ?? "No invoice")</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a class="btn btn-warning"
+       href="@EditUrl">
+        Edit
+    </a>
+
+    <a class="btn btn-secondary"
+       href="/admin/products">
+        Back
+    </a>
+}
+
+@code {
+    public IStoreRepository Repository => Service;
+
+    [Parameter]
+    public int Id { get; set; }
+
+    public Inventory? InventoryItem { get; set; }
+
+    protected async override Task OnParametersSetAsync()
+    {
+        InventoryItem = await Repository.InventoryItems
+            .FirstOrDefaultAsync(i => i.InventoryID == Id);
+    }
+
+    public string EditUrl =>
+        $"/admin/products/edit/{InventoryItem?.InventoryID}";
+}

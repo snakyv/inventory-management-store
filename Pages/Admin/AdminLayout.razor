@@ -1,0 +1,38 @@
+﻿@inherits LayoutComponentBase
+
+<div class="bg-info text-white p-3">
+    <span class="navbar-brand ms-2 fw-bold">
+        INVENTORY STORE Administration
+    </span>
+
+    <a class="btn btn-sm btn-light float-end"
+       href="/">
+        Return to Store
+    </a>
+</div>
+
+<div class="container-fluid">
+    <div class="row p-2">
+        <div class="col-3">
+            <div class="d-grid gap-2">
+                <NavLink class="btn btn-outline-primary"
+                         href="/admin/products"
+                         ActiveClass="btn-primary text-white"
+                         Match="NavLinkMatch.Prefix">
+                    Inventory
+                </NavLink>
+
+                <NavLink class="btn btn-outline-primary"
+                         href="/admin/orders"
+                         ActiveClass="btn-primary text-white"
+                         Match="NavLinkMatch.Prefix">
+                    Orders
+                </NavLink>
+            </div>
+        </div>
+
+        <div class="col">
+            @Body
+        </div>
+    </div>
+</div>

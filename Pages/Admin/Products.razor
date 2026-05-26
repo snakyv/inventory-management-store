@@ -1,0 +1,108 @@
+﻿@page "/admin/products"
+@page "/admin"
+@inherits OwningComponentBase<IStoreRepository>
+
+<h3 class="bg-info text-white text-center p-2">
+    Inventory Management
+</h3>
+
+<table class="table table-sm table-striped table-bordered">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Part</th>
+            <th>Invoice</th>
+            <th>Quantity</th>
+            <th>Price</th>
+            <td></td>
+        </tr>
+    </thead>
+
+    <tbody>
+        @if (InventoryData.Any())
+        {
+            @foreach (Inventory item in InventoryData)
+            {
+                <tr>
+                    <td>@item.InventoryID</td>
+                    <td>@item.Name</td>
+                    <td>@(item.Part?.Name ?? "No part")</td>
+                    <td>@(item.Invoice?.SerialNumber ?? "No invoice")</td>
+                    <td>@(item.Quantity ?? 0)</td>
+                    <td>@((item.Price ?? 0).ToString("c"))</td>
+                    <td>
+                        <a class="btn btn-info btn-sm"
+                           href="@GetDetailsUrl(item.InventoryID)">
+                            Details
+                        </a>
+
+                        <a class="btn btn-warning btn-sm"
+                           href="@GetEditUrl(item.InventoryID)">
+                            Edit
+                        </a>
+
+                        <button class="btn btn-danger btn-sm"
+                                @onclick="@(async () => await DeleteInventory(item))">
+                            Delete
+                        </button>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="7" class="text-center">
+                    No inventory items
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a class="btn btn-primary"
+   href="/admin/products/create">
+    Create
+</a>
+
+<button class="btn btn-secondary ms-2"
+        @onclick="@(async () => await UpdateData())">
+    Refresh Data
+</button>
+
+@code {
+    public IStoreRepository Repository => Service;
+
+    public IEnumerable<Inventory> InventoryData { get; set; }
+        = Enumerable.Empty<Inventory>();
+
+    protected async override Task OnInitializedAsync()
+    {
+        await UpdateData();
+    }
+
+    public async Task UpdateData()
+    {
+        InventoryData = await Repository.InventoryItems
+            .OrderBy(i => i.InventoryID)
+            .ToListAsync();
+    }
+
+    public async Task DeleteInventory(Inventory item)
+    {
+        Repository.DeleteInventory(item);
+
+        await UpdateData();
+    }
+
+    public string GetDetailsUrl(int id)
+    {
+        return $"/admin/products/details/{id}";
+    }
+
+    public string GetEditUrl(int id)
+    {
+        return $"/admin/products/edit/{id}";
+    }
+}

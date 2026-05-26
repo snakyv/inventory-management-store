@@ -1,0 +1,104 @@
+﻿<table class="table table-sm table-striped table-bordered">
+    <thead>
+        <tr>
+            <th colspan="6" class="text-center">
+                @TableTitle
+            </th>
+        </tr>
+
+        <tr>
+            <th>Customer</th>
+            <th>City</th>
+            <th>Country</th>
+            <th>Item</th>
+            <th>Quantity</th>
+            <th></th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @if (Orders.Any())
+        {
+            @foreach (Order order in Orders)
+            {
+                bool firstLine = true;
+
+                @foreach (OrderLine line in order.Lines)
+                {
+                    <tr>
+                        @if (firstLine)
+                        {
+                            <td rowspan="@Math.Max(order.Lines.Count, 1)">
+                                @order.Name
+                            </td>
+
+                            <td rowspan="@Math.Max(order.Lines.Count, 1)">
+                                @order.City
+                            </td>
+
+                            <td rowspan="@Math.Max(order.Lines.Count, 1)">
+                                @order.Country
+                            </td>
+                        }
+
+                        <td>@line.ItemName</td>
+                        <td>@line.Quantity</td>
+
+                        @if (firstLine)
+                        {
+                            <td rowspan="@Math.Max(order.Lines.Count, 1)">
+                                <button class="btn btn-sm btn-danger"
+                                        @onclick="@(async e =>
+                                        await OrderSelected.InvokeAsync(order.OrderID))">
+                    @ButtonLabel
+                </button>
+            </td>
+
+                        firstLine = false;
+                        }
+                    </tr>
+                }
+
+                @if (!order.Lines.Any())
+                {
+                    <tr>
+                        <td>@order.Name</td>
+                        <td>@order.City</td>
+                        <td>@order.Country</td>
+                        <td colspan="2">No items</td>
+                        <td>
+                            <button class="btn btn-sm btn-danger"
+                                    @onclick="@(async e =>
+                                    await OrderSelected.InvokeAsync(order.OrderID))">
+                    @ButtonLabel
+                </button>
+            </td>
+        </tr>
+                }
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="6" class="text-center">
+                    No Orders
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    [Parameter]
+    public string TableTitle { get; set; } = "Orders";
+
+    [Parameter]
+    public IEnumerable<Order> Orders { get; set; }
+        = Enumerable.Empty<Order>();
+
+    [Parameter]
+    public string ButtonLabel { get; set; } = "Ship";
+
+    [Parameter]
+    public EventCallback<int> OrderSelected { get; set; }
+}
